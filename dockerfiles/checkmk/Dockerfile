@@ -1,17 +1,16 @@
 ARG CHECKMK_VERSION=2.4.0p19
 
 FROM checkmk/check-mk-cloud:${CHECKMK_VERSION}
-LABEL maintainer=henri@nagstamon.de
+LABEL maintainer=timothe.stoifl@outlook.com
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG CMK_PASSWORD=cmkadmin
 ARG CMK_SITE_ID=cmk
 
-# python3 and git needed for modify-extension.py
+# python3 needed for modify-extension.py
 RUN apt -y update && \
     apt -y install less \
                    python3 \
-                   python3-git \
                    vim
 
 # scripts used need to be executable

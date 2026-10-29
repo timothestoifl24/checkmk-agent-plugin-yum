@@ -14,9 +14,6 @@ $SU "mkdir -p ${CMK}/tmp/check_mk"
 # Create mkp template (runs as cmk user)
 $SU "mkp template yum"
 
-# Mark repo safe for git (needed when running as different user)
-git config --global --add safe.directory "${WORKDIR}"
-
 # Run the extension modifier script to produce a manifest template
 modify-extension.py "${WORKDIR}" "${CMK}/tmp/check_mk/yum.manifest.temp"
 

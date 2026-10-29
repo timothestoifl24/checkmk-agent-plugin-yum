@@ -2,72 +2,56 @@
 #
 #  modify extension configuration
 
-# Include "os" to check for correct copy of the yum agent before changing lines in it below
-import os
-
 from pathlib import Path
 from pprint import pformat
 from sys import argv, \
     exit
 
-from git import (Commit,
-                 Repo,
-                 TagReference)
-version="0.0.0"
-# only do stuff if git repo path and config file path are given
+AUTHOR = 'Timothe Stoifl <timothe.stoifl@outlook.com>'
+DOWNLOAD_URL = 'https://github.com/timothestoifl24/checkmk-agent-plugin-yum/releases'
+YUM_AGENT_PATH = Path('/omd/sites/cmk/local/share/check_mk/agents/plugins/yum')
+
+# only do stuff if repo path and config file path are given
 if len(argv) > 2:
-    git_repo_path = argv[1]
-    package_file_path = argv[2]
-    if Path(package_file_path).exists() and Path(package_file_path).is_file():
-        # get version information from git repo
-        repo = Repo(path=git_repo_path, search_parent_directories=True)
+    repo_path = Path(argv[1])
+    package_file_path = Path(argv[2])
 
-        print(repo.head.commit)
+    # version is maintained manually in the VERSION file at the repository root
+    version_file_path = repo_path / 'VERSION'
+    if not version_file_path.is_file():
+        print(f'Version file {version_file_path} does not exist. :-(')
+        exit(1)
+    version = version_file_path.read_text().strip()
+    if not version:
+        print(f'Version file {version_file_path} is empty. :-(')
+        exit(1)
+    print(f'Version {version}')
 
-        # if no tag is latest take repo head
-        version_repo = next((tag for tag in repo.tags if tag.commit == repo.head.commit), repo.head.commit)
-        if type(version_repo) == Commit:
-            # first 8 characters of commit added to '0.0.' to get a SemVer version number
-            version = f'0.0.{int(version_repo.hexsha[0:8], 16)}'
-        elif type(version_repo) == TagReference:
-            # Tag
-            version = version_repo.name
-            if version.startswith('v'):
-                version = version.split('v')[1]
-
+    if package_file_path.is_file():
         # open package config file
-        with open(package_file_path, 'r') as package_file:
-            package_config = eval(package_file.read())
+        package_config = eval(package_file_path.read_text())
 
         # modify package config
-        package_config['author'] = 'Henri Wahl'
+        package_config['author'] = AUTHOR
         package_config['description'] = 'Checks for updates on RPM-based distributions via yum/dnf.'
-        package_config['download_url'] = 'https://github.com/HenriWahl/checkmk-agent-plugin-yum/releases'
+        package_config['download_url'] = DOWNLOAD_URL
         package_config['title'] = 'YUM Update Check'
         package_config['version'] = version
         package_config['version.min_required'] = '2.3.0'
 
-        # write package config file
-        bla = pformat(package_config, indent=4)
-        with open(package_file_path, 'w') as package_file:
-            # nicely format config file with pformat
-            package_file.write(pformat(package_config, indent=4))
+        # write package config file - nicely formatted with pformat
+        package_file_path.write_text(pformat(package_config, indent=4))
     else:
         print(f'Package configuration file path {package_file_path} does not exist. :-(')
         exit(1)
 
-    # New code to update version number inside the yum script itself
-    yum_agent_path = "/omd/sites/cmk/local/share/check_mk/agents/plugins/yum"
-    if os.path.exists(yum_agent_path):
-        with open(yum_agent_path, "r+") as file:
-            content = file.read().replace('CMK_VERSION="0.0.0"', f'CMK_VERSION="{version}"')
-            file.seek(0)
-            file.write(content)
-            file.truncate()
+    # update version number inside the yum agent plugin itself
+    if YUM_AGENT_PATH.exists():
+        content = YUM_AGENT_PATH.read_text()
+        YUM_AGENT_PATH.write_text(content.replace('CMK_VERSION="0.0.0"', f'CMK_VERSION="{version}"'))
     else:
-        print(f"File not found: {yum_agent_path}")
-    # End of new code
+        print(f'File not found: {YUM_AGENT_PATH}')
 
 else:
-    print('Git repository or package configuration file path is missing at all. :-(')
+    print('Repository path or package configuration file path is missing at all. :-(')
     exit(1)

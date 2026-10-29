@@ -7,6 +7,7 @@
 # Copyright 2021, Marco Lenhardt <marco.lenhardt@ontec.at>
 # Copyright 2021, Henrik Gießel <henrik.giessel@yahoo.de>
 # Copyright 2023, Timo Klecker <klecker@decoit.de>
+# Copyright 2026, Timothe Stoifl <timothe.stoifl@outlook.com>
 #
 # Based on:
 #

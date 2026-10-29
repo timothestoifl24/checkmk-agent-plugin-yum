@@ -8,6 +8,15 @@ See [https://docs.checkmk.com/latest/de/mkps.html#H1:Installation,%20Update%20an
 
 Now built by GitHub Actions.
 
+Maintained by Timothe Stoifl <timothe.stoifl@outlook.com>, based on the original plugin by Henri Wahl
+([HenriWahl/checkmk-agent-plugin-yum](https://github.com/HenriWahl/checkmk-agent-plugin-yum)).
+
+### 🔢 Versioning
+
+The version of the package and the agent plugin is maintained manually in the file [`VERSION`](VERSION)
+(e.g. `2.0.0`). Bump it before building a new package, ideally following [SemVer](https://semver.org):
+patch for fixes, minor for new features, major for incompatible changes.
+
 
 ## 🛠️ Development
 
